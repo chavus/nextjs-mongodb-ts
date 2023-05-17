@@ -1,35 +1,17 @@
 import { NextResponse } from "next/server";
-log('importing connectMongoDB1')
-import connectMongoDb from "@/utils/connectMongoDb";
-log('importing connectMongoDB2')
-import User from '@/models/user'
+import * as User from "@/models/user";
 import { log } from "console";
 
+export const dynamic = 'force-dynamic'; // GET is static
+
+
 export async function GET(){
-    try{
-        log('Calling connectMongoDb')
-        await connectMongoDb()
-    }catch(err){
-        log(err)
-    }
+    // const { searchParams } = new URL(request.url); // Makes route dynamic
 
-    const allUsers = await User.find({});
-    // log(allUsers)
+    const allUsers = await User.getAllUsers();
 
 
-    // const user = new User({
-    //     name:"Juan",
-    //     age:10,
-    //     profession:"Engineer"
-    // })
-
+    log('Returning all users')
     return NextResponse.json(allUsers)
 
-
-    // return NextResponse.json({
-    //     users:[
-    //         {name:user.name, age:user.age},
-    //         {name:'Pedro', age:18}
-    //     ]
-    // })
 }

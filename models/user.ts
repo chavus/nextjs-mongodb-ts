@@ -1,5 +1,6 @@
 import {Schema, model, models} from 'mongoose';
 
+
 interface IUser{
     name:string,
     age:number,
@@ -13,6 +14,9 @@ const userSchema = new Schema<IUser>({
 })
 
 
- const User = models.User || model<IUser>('User', userSchema) 
+export const User = models.User || model<IUser>('User', userSchema) 
  
- export default User
+export function getAllUsers(){
+    return User.find({})
+}
+// export default User
