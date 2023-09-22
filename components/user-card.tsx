@@ -15,7 +15,7 @@ export default function userCard(userData:IUser){
   className="group flex flex-col basis-10 justify-between rounded-sm bg-white p-4 shadow-xl transition-shadow hover:shadow-lg sm:p-6 lg:p-8"
 >
   <div>
-    <h3 className="text-3xl font-bold text-indigo-600 sm:text-5xl">{userData.name}</h3>
+    <h3 className="text-3xl font-bold text-indigo-600 sm:text-5xl">{userData.fullName}</h3>
 
     <div className="mt-4 border-t-2 border-gray-100 pt-4">
       <p className="text-sm font-medium uppercase text-gray-500">{userData.profession}.</p>

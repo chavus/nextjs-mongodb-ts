@@ -1,6 +1,6 @@
 //Static page and dynamic component
 
-import * as User from "@/models/user";
+import User from "@/models/user";
 import userCard from "@/components/user-card";
 import UsersClient from "./users-list";
 import connectMongoDb from "@/lib/connectMongoDb";
