@@ -1,7 +1,10 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
+import Provider from '@/components/Provider'
+import DarkToggle from '@/components/DarkToggle'
 
 const inter = Inter({ subsets: ['latin'] })
+
 
 export const metadata = {
   title: 'Create Next App',
@@ -9,15 +12,19 @@ export const metadata = {
 }
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <h1>Title from the RootLayout</h1>
-        {children}</body>
+  // Create Provider component to wrap app with SessionProvider
+  return (      
+    <html lang="en" suppressHydrationWarning>
+          <body className={inter.className}>
+              <Provider>
+                {children}
+              </Provider>
+              {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.js"></script> */}
+            </body>
     </html>
   )
 }

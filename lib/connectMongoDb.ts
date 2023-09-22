@@ -1,4 +1,3 @@
-import { log } from "console";
 import mongoose, { Mongoose } from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
@@ -41,6 +40,8 @@ export default async function connectMongoDb(){
 
     try{
         cached.conn = await cached.promise
+        console.log('Successfully connected to MongoDB');
+        
     } catch(e){
         cached.promise = null;
         throw e

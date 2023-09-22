@@ -1,0 +1,24 @@
+'use client';
+import {type ButtonProps, Button, CustomFlowbiteTheme, Flowbite} from 'flowbite-react';
+import type { ReactNode } from 'react';
+
+interface ExtendedButtonProps extends ButtonProps{
+    color?: string;
+    children?: ReactNode
+}
+
+const customTheme: CustomFlowbiteTheme = {
+    button :{
+        color: {
+            primary: "text-white bg-primary-700 border border-transparent enabled:hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:enabled:hover:bg-primary-700 dark:focus:ring-primary-800"
+        }
+    }
+}
+
+export default function CustomButton({color, children, ...otherProps}: ExtendedButtonProps){
+    return(
+        <Flowbite theme={{theme:customTheme}}>
+            <Button color={color} {...otherProps}>{children}</Button>
+        </Flowbite>
+    ) 
+}
