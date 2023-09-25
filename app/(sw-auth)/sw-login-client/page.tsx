@@ -11,7 +11,7 @@ import { Alert } from 'flowbite-react';
 
 export default function Login({searchParams}:{searchParams:{callbackUrl:string, error:string}}){
 
-    const [error,setError] = useState<null | string>(null)
+    const [error,setError] = useState<null | string>(searchParams.error)
     const [isLoading, setIsLoading] = useState(false)
     const username = useRef<HTMLInputElement>(null)
     const password = useRef<HTMLInputElement>(null)
@@ -26,11 +26,6 @@ export default function Login({searchParams}:{searchParams:{callbackUrl:string, 
         }
         setError(signInRes?.error || null)
     }
-
-    useEffect(()=>{
-        // Improve error handling from queryParams
-        searchParams.error && setError(searchParams.error)
-    },[])
 
     function clearError(){
         setError(null)

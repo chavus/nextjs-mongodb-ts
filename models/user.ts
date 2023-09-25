@@ -69,7 +69,6 @@ userSchema.pre('save', async function(next){
 // Instance Methods
 userSchema.method('update', async function(partialUser:Partial<IUser>){
     let userKey:keyof IUser
-    console.log('to update: ', partialUser)
     for ( userKey in partialUser){
         this.set(userKey, partialUser[userKey])
     }
