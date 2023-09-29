@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation'
 import { Alert } from 'flowbite-react';
+import Link from 'next/link';
 
 export default function Login({searchParams}:{searchParams:{callbackUrl:string, error:string}}){
 
@@ -55,9 +56,10 @@ export default function Login({searchParams}:{searchParams:{callbackUrl:string, 
             </div>
         </div>
 
-        <div className='flex flex-col w-full max-w-[12rem] '>
+        <div className='flex flex-col w-full max-w-[12rem]'>
             <Button color='primary' className='mb-3' onClick={onLogInClick} disabled={isLoading} isProcessing={isLoading}>Log In</Button>
-            <ButtonCustom outline><a href="/sw-signup">Create account </a></ButtonCustom> 
+            <ButtonCustom className='mb-3'outline><a href="/sw-signup">Create account </a></ButtonCustom> 
+            <Link className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</Link>
         </div>
     </form>
     )

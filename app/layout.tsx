@@ -1,7 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import Provider from '@/components/Provider'
-import DarkToggle from '@/components/DarkToggle'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,10 +19,10 @@ export default function RootLayout({
   return (      
     <html lang="en" suppressHydrationWarning>
           <body className={inter.className}>
-              <Provider>
-                {children}
-              </Provider>
-              {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.0/flowbite.min.js"></script> */}
+                <Provider>
+                  {children}
+                </Provider>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
             </body>
     </html>
   )

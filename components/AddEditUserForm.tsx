@@ -1,16 +1,15 @@
 "use client";
 import SwIcon from "@/components/SwIcon";
-import { cookies } from "next/headers";
 import ButtonCustom from "@/components/elements/ButtonCustom";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { type IUser } from "@/models/user";
 import { NextResponse } from "next/server";
 import Alert from "@/components/elements/Alert";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Spinner, Modal } from "flowbite-react";
 import Button from '@/components/elements/Button'
+import Link from "next/link";
 
 // Add new user
 // Edit user
@@ -267,9 +266,11 @@ export default function SignUp({user}:{user?:any}) {
       </div>
 
       <div className="mb-2 flex flex-col w-full max-w-xs ">
-        <ButtonCustom type="submit" outline disabled={isLoading}>
+        <ButtonCustom className='mb-3' type="submit" outline disabled={isLoading}>
           {isLoading && <Spinner className="mr-4"/>} {user ? 'Save' : 'Create account'}
         </ButtonCustom>
+        <Link className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</Link>
+
       </div>
     </form>
 
@@ -288,7 +289,7 @@ export default function SignUp({user}:{user?:any}) {
             Go to Log In page to access.
           </h3>}
           <div className="flex justify-center gap-4">
-            <Button color="primary" onClick={() => router.push(redirectUrl)}>
+            <Button  color="primary" onClick={() => router.push(redirectUrl)}>
               {user ? 'Ok' : 'Go to Log In'}
             </Button>
           </div>
