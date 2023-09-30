@@ -21,11 +21,12 @@ export default function Login({searchParams}:{searchParams:{callbackUrl:string, 
     async function onLogInClick() {
         setIsLoading(true)
         const signInRes = await signIn('credentials',{redirect:false, callbackUrl:searchParams.callbackUrl || '/sw-home', username:username.current?.value, password:password.current?.value})
-        setIsLoading(false)
         if (signInRes?.error == null){
             router.push(searchParams.callbackUrl || '/sw-home')
+            router.refresh() // Need to do this to re-render layout after push
         }
         setError(signInRes?.error || null)
+        setIsLoading(false)
     }
 
     function clearError(){
@@ -59,7 +60,7 @@ export default function Login({searchParams}:{searchParams:{callbackUrl:string, 
         <div className='flex flex-col w-full max-w-[12rem]'>
             <Button color='primary' className='mb-3' onClick={onLogInClick} disabled={isLoading} isProcessing={isLoading}>Log In</Button>
             <ButtonCustom className='mb-3'outline><a href="/sw-signup">Create account </a></ButtonCustom> 
-            <Link className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</Link>
+            <a className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</a>
         </div>
     </form>
     )
