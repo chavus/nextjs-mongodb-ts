@@ -1,10 +1,9 @@
-import AddEditForm from '@/components/AddEditUserForm'
+import AddEditForm from '@/forms/AddEditUserForm'
 import User from '@/models/user'
 import { getServerSession } from "next-auth";
-import { RedirectType } from 'next/dist/client/components/redirect';
 import { notFound, redirect } from 'next/navigation';
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
+import { NextResponse } from 'next/server';
 
 // import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -16,12 +15,14 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 // 2. Need login -> Show message in login screen
 // 3. Error for not found pages.
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditUser({params}:{params:{username:string}}){
 
     const username = params.username
     const session = await getServerSession(authOptions)
 
-    if (!session || session.user.username != username ){
+    if (session?.user.username != username ){
         redirect('/access-denied')
     }
 

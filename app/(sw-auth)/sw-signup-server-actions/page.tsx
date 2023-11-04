@@ -1,6 +1,6 @@
 import SwIcon from "@/components/SwIcon"
 import { cookies } from 'next/headers';
-import Button from '@/components/elements/ButtonCustom'
+import ButtonCustom from '@/components/elements/ButtonCustom'
 
 // Add new user
 // Edit user
@@ -70,7 +70,7 @@ export default function SignUp(){
         </div>
 
         <div className='flex flex-col w-full max-w-xs '>
-            <Button type="submit" outline>Create account</Button> 
+            <ButtonCustom type="submit" outline>Create account</ButtonCustom> 
         </div>
     </form>
     )

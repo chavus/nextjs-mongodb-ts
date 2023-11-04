@@ -2,8 +2,6 @@
 import NextAuth, { AuthOptions, User as AuthUser, Session, SessionStrategy } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import User, { IUser } from "@/models/user"
-// import signIn from "@/lib/authenticate"
-import { JWT } from "next-auth/jwt/types"
 
 // Refactor to use https://next-auth.js.org/configuration/initialization#route-handlers-app
 
@@ -33,6 +31,7 @@ export const authOptions:AuthOptions = {
     ],
     pages:{
         signIn: '/sw-login-client',
+        // signIn: '/ui-sandbox',
     },
     session: {
         // Specs for user session, which is saved by default as jwt stored in the session cookie. 

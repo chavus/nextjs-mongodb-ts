@@ -1,4 +1,4 @@
-import User,{IUser} from "@/models/user";
+import User, {IUser} from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
 import { getNextErrorResponse } from "@/lib/nextErrorResponse";
 import { NotFoundError } from "@/lib/customErrors";

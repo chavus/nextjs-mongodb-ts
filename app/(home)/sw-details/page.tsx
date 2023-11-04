@@ -1,29 +1,26 @@
-// 'use client';
-
-// import { useSession } from "next-auth/react"
-// import { redirect } from "next/navigation"
-
-import { getServerSession } from "next-auth";
+import StudentCard from "@/components/StudentCard"
+import Student from "@/models/student";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { redirect } from "next/navigation";
-export default async function Home2(){
+import { getServerSession } from "next-auth";
+
+export const dynamic = 'force-dynamic';
+
+export default async function Details(){
 
     const session = await getServerSession(authOptions)
-
-    // const {data:session, status} = useSession(
-    //     {
-    //     required:true
-    // }
-    // )
-
-    if (!session){
-        redirect('/api/auth/signin?callbackUrl=/sw-details&error=SessionRequired')
-    }
+    const allStudents = await Student.getAll()
 
     return (
         <>
-            <h1>This contains students details</h1>
-          
+            <div className="mx-auto max-w-screen-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h1 className="col-span-1 md:col-span-2 lg:col-span-3 text-2xl font-extrabold tracking-tight leading-none text-gray-900 md:text-3xl lg:text-4xl dark:text-white">Students Details</h1>
+                {allStudents.map((student,i)=>
+                    <div key={i} className="flex justify-center">
+                        <StudentCard student={student} showEdit={Boolean(session?.user.isAdmin)} showDetails={true}/>
+                    </div>
+                )}
+            </div>
         </>
+        
     )
 }

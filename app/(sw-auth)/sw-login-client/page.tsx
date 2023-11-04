@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { Alert } from 'flowbite-react';
 import Link from 'next/link';
 
+
 export default function Login({searchParams}:{searchParams:{callbackUrl:string, error:string}}){
 
     const [error,setError] = useState<null | string>(searchParams.error)
@@ -22,11 +23,12 @@ export default function Login({searchParams}:{searchParams:{callbackUrl:string, 
         setIsLoading(true)
         const signInRes = await signIn('credentials',{redirect:false, callbackUrl:searchParams.callbackUrl || '/sw-home', username:username.current?.value, password:password.current?.value})
         if (signInRes?.error == null){
-            router.push(searchParams.callbackUrl || '/sw-home')
-            router.refresh() // Need to do this to re-render layout after push
+            router.refresh() // Refresh route to remove cache, in case redirecting to  initially prefeteched unauthorized page
+            router.replace(searchParams.callbackUrl || '/sw-home')
+        }else{
+            setError(signInRes?.error || null)
+            setIsLoading(false)
         }
-        setError(signInRes?.error || null)
-        setIsLoading(false)
     }
 
     function clearError(){
@@ -59,8 +61,8 @@ export default function Login({searchParams}:{searchParams:{callbackUrl:string, 
 
         <div className='flex flex-col w-full max-w-[12rem]'>
             <Button color='primary' className='mb-3' onClick={onLogInClick} disabled={isLoading} isProcessing={isLoading}>Log In</Button>
-            <ButtonCustom className='mb-3'outline><a href="/sw-signup">Create account </a></ButtonCustom> 
-            <a className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</a>
+            <ButtonCustom outline className='mb-3' tag='a' href="/sw-signup">Create Account</ButtonCustom>
+            <Link className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</Link>
         </div>
     </form>
     )

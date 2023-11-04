@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request:NextRequest){
     const formData = await request.formData();
-    console.log(formData.get('password'))
     // return new NextResponse(
     //     JSON.stringify({
     //         password: formData.get('password')

@@ -23,7 +23,6 @@ export default function ProtectedPage(){
         // .then((json)=>setUsersData(json.data))        
         (async ()=>{ // To use async/await
             const users = await getUsers()
-            console.log(users)
             setUsersData(users)
         }
         )()

@@ -10,12 +10,12 @@ import { verify } from "@/lib/authJose";
 export const dynamic = 'force-dynamic'; // GET is static by default
 
 export async function GET(req:NextRequest){
-    // getServerSession() -> Gets session information  https://next-auth.js.org/configuration/nextjs#getserversession
-    const session = await getServerSession(authOptions)
-    
+   
+    // Authentication moved to middleware
+    /* 
+    const session = await getServerSession(authOptions) // -> Gets session information  https://next-auth.js.org/configuration/nextjs#getserversession
     // getToken() -> verify and decrypt session jwt from the cookie or from the Auth header https://next-auth.js.org/tutorials/securing-pages-and-api-routes#using-gettoken
-    // const token = await getToken({req})
-    
+    // const session = await getToken({req})
     // Alternative to be able to authenticate and authorize with JWT(/authenticate endpoint) and also with sessions.
     let authenticatedUser;
     if (session){
@@ -25,8 +25,9 @@ export async function GET(req:NextRequest){
         // Verify if there is a jwt token added to the Authorization Header
         authenticatedUser = await verify(req);
         if (!authenticatedUser) return getNextErrorResponse(new NotAuthorizedError('Authorization failed.'))
-    }
-    console.log('Logged with user: ', authenticatedUser)
+    } 
+    */
+
 
     // const { searchParams } = new URL(request.url); // Makes route dynamic
     try{

@@ -6,6 +6,7 @@ export default function Layout({
     children:React.ReactNode
 }){
 
+    // throw new Error('Error at layout ')
     return(
         <>
         <h1>My Layout</h1>

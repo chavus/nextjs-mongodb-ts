@@ -1,5 +1,5 @@
 import {Schema, Model, Document, model, models, HydratedDocument} from 'mongoose';
-// import uniqueValidator from 'mongoose-unique-validator'
+import baseSchema from './baseSchema';
 var uniqueValidator = require('mongoose-unique-validator');
 const bcrypt = require('@/lib/bcrypt')
 
@@ -13,7 +13,7 @@ export interface IUser {
     isAdmin:boolean
 }
 
-export interface IUserDocument extends IUser, Document{ // Includes document/instance methods as types
+interface IUserDocument extends IUser, Document{ // Includes document/instance methods as types
     update(partialUser:Partial<IUser>):Promise<void>;
     isPasswordCorrect(password:string):Promise<boolean>;
 }
@@ -28,7 +28,6 @@ interface UserModel extends Model<IUserDocument> { // Declare static method type
 
 // Schema
 const userSchema = new Schema<IUserDocument>({
-    // __v:{type:Number, select:false}, // select:false to hide field/path from query results
     username:{
         type:String, 
         required:[true, 'Username is required'],
@@ -41,6 +40,8 @@ const userSchema = new Schema<IUserDocument>({
     age:{type:Number},
 })
 
+userSchema.add(baseSchema)
+
 userSchema.plugin(uniqueValidator, {message:'{PATH} already exists.'}); // To handle unique condition of fields
 
 userSchema.pre('save', async function(next){
@@ -49,22 +50,6 @@ userSchema.pre('save', async function(next){
     user.password = await bcrypt.hash(user.password)
     next()
 })
-
-// // Virtuals
-// userSchema.virtual('id').get(function(){
-//     return this._id.toHexString()
-// })
-
-
-// // Ensure virtual fields are serialised.
-// userSchema.set('toJSON', {
-//     virtuals: true
-// });
-
-// // Ensure virtual fields are serialised.
-// userSchema.set('toObject', {
-//     virtuals: true
-// });
 
 // Instance Methods
 userSchema.method('update', async function(partialUser:Partial<IUser>){

@@ -2,7 +2,7 @@
 import SwIcon from "@/components/SwIcon";
 import ButtonCustom from "@/components/elements/ButtonCustom";
 import { useRouter } from "next/navigation";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { type IUser } from "@/models/user";
 import { NextResponse } from "next/server";
 import Alert from "@/components/elements/Alert";
@@ -10,6 +10,10 @@ import { useState } from "react";
 import { Spinner, Modal } from "flowbite-react";
 import Button from '@/components/elements/Button'
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import type { Session } from "next-auth";
+import ConfirmationModal from "../components/ConfirmationModal";
+import { getDataToUpdate } from "./formsUtils";
 
 // Add new user
 // Edit user
@@ -55,16 +59,16 @@ export default function SignUp({user}:{user?:any}) {
 
   const [isLoading, setIsLoading] = useState(false)
   const [openModal, setOpenModal] = useState(false);
-  
-  const redirectUrl = user ? '/sw-home' : '/sw-login-client'
-
+  const { data:session, update } = useSession()
   const router = useRouter();
+
+  const redirectUrl = user ? '/sw-home' : '/sw-login-client' // Redirect after update
+
   const {
     register,
     handleSubmit,
     watch,
     setError,
-    getValues,
     clearErrors,
     formState: { errors, dirtyFields },
   } = useForm<UserFormData>({
@@ -96,17 +100,13 @@ export default function SignUp({user}:{user?:any}) {
   };
 
   
+
   async function onSubmit(data: Partial<UserFormData>) {
-    delete data.confirmPassword
     let endpoint:string;
     let options:{}
-
+    let dataToUpdate:any; //TODO: Change to replace any
     if (user){
-      const dataToUpdate:any = {}; //TODO: Change to replace any
-      // const dataToUpdate:Partial<UserFormData> = {}
-      Object.keys(dirtyFields).filter(field => field !='confirmPassword').forEach(dirtyField =>{
-        dataToUpdate[dirtyField as keyof FormData] = data[dirtyField as keyof UserFormData] 
-      })
+      dataToUpdate= getDataToUpdate(data,dirtyFields,['confirmPassword'])
       endpoint = '/api/users/' + user.username
       options = {
         method: "PATCH",
@@ -131,8 +131,15 @@ export default function SignUp({user}:{user?:any}) {
     const responseObject = await response.json();
     if (response.status === 200){
       // Updated
+      const updatedSession = {...session} as Session
+      if (dataToUpdate.isAdmin != undefined || dataToUpdate.username != undefined){
+        if (dataToUpdate.isAdmin != undefined ) {
+          updatedSession.user.isAdmin = dataToUpdate.isAdmin
+        }
+        if (dataToUpdate.username != undefined ) {updatedSession.user.username = dataToUpdate.username}
+        await update(updatedSession)
+      }
       setOpenModal(true);
-      // router.push("/sw-home");
     }else if (response.status === 201) {
       // Registered
       setOpenModal(true);
@@ -140,10 +147,15 @@ export default function SignUp({user}:{user?:any}) {
         responseObject.errors?.forEach((error:{field:keyof typeof formFields, message:string}) => {
                 setError(error.field,{message:error.message})
         });
-    }else{
+    } else{
         setError('root',{message: 'Error: ' + responseObject.message ||  JSON.stringify(responseObject)})
     }
     setIsLoading(false)
+  }
+
+  function onModalOkAndCloseClick(){
+    router.push(redirectUrl)
+    router.refresh()
   }
 
   return (
@@ -269,33 +281,21 @@ export default function SignUp({user}:{user?:any}) {
         <ButtonCustom className='mb-3' type="submit" outline disabled={isLoading}>
           {isLoading && <Spinner className="mr-4"/>} {user ? 'Save' : 'Create account'}
         </ButtonCustom>
-        <Link className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</Link>
+        <Link prefetch={false} className='text-center text-sm font-medium text-primary-700 md:ml-2 dark:text-primary-500 hover:underline' href='/sw-home'>Go to Home</Link>
 
       </div>
     </form>
 
-    <Modal show={openModal} size="md" popup onClose={() => router.push(redirectUrl)}>
-      <Modal.Header />
-      <Modal.Body>
-        <div className="text-center">
-        
-        <svg className="mx-auto mb-4 w-14 h-14 text-green-700 dark:text-green-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 10 2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-        </svg>
-          <h2 className="mb-5 text-lg font-bold text-green-700 dark:text-green-400">
-            {user ? 'Profile updated' : 'Registration successful!'}
-          </h2>
-          { !user && <h3 className="mb-5 text-lg font-medium  dark:text-gray-300">
-            Go to Log In page to access.
-          </h3>}
-          <div className="flex justify-center gap-4">
-            <Button  color="primary" onClick={() => router.push(redirectUrl)}>
-              {user ? 'Ok' : 'Go to Log In'}
-            </Button>
-          </div>
-        </div>
-      </Modal.Body>
-    </Modal>
+    <ConfirmationModal
+      openConfirmationModal={openModal}
+      setOpenConfirmationModal={setOpenModal}
+      header = {user ? 'Profile updated' : 'Registration successful!'}
+      message = { !user ? 'Go to Log In page to access.' : ''}
+      buttonLabel={user ? 'Ok' : 'Go to Log In'}
+      onCloseClick={onModalOkAndCloseClick}
+      onButtonClick={onModalOkAndCloseClick}
+    />
+
     
     </>
   );
