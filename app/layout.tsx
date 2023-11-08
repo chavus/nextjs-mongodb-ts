@@ -36,11 +36,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   // Create Provider component to wrap app with SessionProvider
-  return (      
-    <html lang="en" className="dark" suppressHydrationWarning>
-        <head>
-        <meta name="color-scheme" content="only light"/>
-        </head>
+  return (
+    <html lang="en" suppressHydrationWarning>
           <body className={inter.className}>
                 <Provider>
                   {children}

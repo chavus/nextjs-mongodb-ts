@@ -3,9 +3,6 @@
 @tailwind utilities;
 
 
-:root {
-  color-scheme: only light;
-}
 
 /* Alternative to set background color */
 @layer base {

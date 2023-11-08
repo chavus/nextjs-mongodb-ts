@@ -9,7 +9,6 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation'
 import { Alert } from 'flowbite-react';
 import Link from 'next/link';
-import revalidatePath from '@/serverActions/revalidatePath';
 
 export default function Login({searchParams}:{searchParams:{callbackUrl:string, error:string}}){
 
