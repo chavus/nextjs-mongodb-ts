@@ -5,6 +5,7 @@ import ButtonCustom from '@/components/elements/ButtonCustom'
 import Button from '@/components/elements/Button'
 import SwIcon from '@/components/SwIcon';
 import { getCsrfToken, signIn } from 'next-auth/react';
+import Link from 'next/link';
 
 
 // TODO: How to get CsrfToken from server component, besides with cookies() which is not retrieved on first load.
@@ -58,7 +59,7 @@ export default async function Login({searchParams}:{searchParams:{error:string}}
 
         <div className='flex flex-col w-full max-w-[12rem] '>
             <Button color='primary' type='submit' className='mb-3'>Log In</Button>
-            <ButtonCustom outline><a href="/sw-signup">Create account </a></ButtonCustom> 
+            <ButtonCustom outline><Link href="/sw-signup">Create account </Link></ButtonCustom> 
         </div>
     </form>
     )

@@ -9,9 +9,8 @@ export default function AccessDenied(){
             
             <p className="mt-6 text-base leading-7 text-gray-600">Sorry, you don't have access to this page. Log in with the correct credentials</p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-            <a href={"/sw-login-client"} className="rounded-md bg-primary-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Go to Log In page</a>
-            <a href={"/sw-home"} className="text-sm font-semibold text-gray-900">Go to Home</a>
-            {/* <a href="/sw-home" className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Go to </a> */}
+            <Link href={"/sw-login-client"} className="rounded-md bg-primary-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">Go to Log In page</Link>
+            <Link href={"/sw-home"} className="text-sm font-semibold text-gray-900">Go to Home</Link>
             </div>
         </div>
         </main>

@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// @ts-check
 
 const nextConfig = {
             experimental: { 
@@ -7,16 +8,9 @@ const nextConfig = {
             },
     };
 
+// https://ducanh-next-pwa.vercel.app/docs/next-pwa/configuring
 const withPWA =  require("@ducanh2912/next-pwa").default({
-  dest: "public",
-//   extendDefaultRuntimeCaching:true,
-//   workboxOptions:{
-//     runtimeCaching:[
-//         {
-//             urlPattern
-//         }
-//     ]
-//   }
+  dest: "public"
 })
 
 module.exports = withPWA(nextConfig)

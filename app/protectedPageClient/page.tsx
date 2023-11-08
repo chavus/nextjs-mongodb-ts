@@ -4,7 +4,7 @@ import {signOut, useSession} from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { useEffect, useState } from "react";
 import { IUser } from "@/models/user";
-
+import Link from 'next/link';
 
 async function getUsers(){
     const res = await fetch('api/users') // Call is authenticated with session.
@@ -54,7 +54,7 @@ export default function ProtectedPage(){
         )
 
     }else{
-        protectedContent = <a href="/api/auth/signin">Sign in first</a>
+        protectedContent = <Link href="/api/auth/signin">Sign in first</Link>
     }
 
     return (<>

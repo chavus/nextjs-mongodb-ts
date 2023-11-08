@@ -13,19 +13,18 @@ export default async function HomeLayout({
 }) {
 
     const session = await getServerSession(authOptions)
-    
     return (
         <>
         
         <nav className="bg-white border-gray-200 dark:bg-gray-900 fixed z-20 top-0 w-full">
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
 
-                <a href="/sw-home" className="flex items-center mr-2">
+                <Link href="/sw-home" className="flex items-center mr-2">
                     <SwIcon className="h-8 w-8 mr-2"/>
                     <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
                         StudentsWeb
                     </span>
-                </a>
+                </Link>
 
                 <div className="flex md:order-2 items-center">
                     <Link className='md:mr-4' href="/sw-add-student">
@@ -60,17 +59,28 @@ export default async function HomeLayout({
                     <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
 
                     <li>
-                        <Link prefetch={false} href="/sw-home" className="block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primaryMainHover md:p-0 md:dark:hover:text-primaryMainHoverInDark dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Students</Link>
+                        <Link prefetch={true} href="/sw-home" className="block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primaryMainHover md:p-0 md:dark:hover:text-primaryMainHoverInDark dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Students</Link>
                     </li>
-                    <li>
-                        <Link prefetch={false} href="/sw-details" className="block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primaryMainHover md:p-0 md:dark:hover:text-primaryMainHoverInDark dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Details</Link>
+                    <li className="hover:text-primaryMainHover dark:hover:text-primaryMainHoverInDark dark:text-white">
+                        {/* <Link prefetch={true} href="/sw-details" className="flex items-center py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-primaryMainHover md:p-0 md:dark:hover:text-primaryMainHoverInDark dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"> */}
+                        <Link prefetch={true} href="/sw-details" className="flex items-center py-2 pl-3 pr-4 rounded md:p-0 ">
+
+                        { !session && 
+                        <svg className="w-4 h-4 mr-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 20">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.5 8V4.5a3.5 3.5 0 1 0-7 0V8M8 12v3M2 8h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/>
+                        </svg>}
+                        <span>
+                        Details
+                        </span>
+
+                            
+                        </Link>
                     </li>
                     {!session && <>
                         <li className="block py-2 pl-3 md:hidden">
                             <Link href={"/sw-login-client"}>
                             <ButtonCustom  outline>Log In</ButtonCustom>
                             </Link>
-                            {/* <ButtonCustom tag='a' href="/sw-login-client" outline>Log In</ButtonCustom> */}
                         </li>
                         </>
                     }

@@ -37,7 +37,10 @@ export default function RootLayout({
 }) {
   // Create Provider component to wrap app with SessionProvider
   return (      
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
+        <head>
+        <meta name="color-scheme" content="only light"/>
+        </head>
           <body className={inter.className}>
                 <Provider>
                   {children}
