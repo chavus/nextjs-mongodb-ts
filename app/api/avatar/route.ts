@@ -52,6 +52,5 @@ export async function DELETE(request:NextRequest){
 }
 
 export async function GET(){
-    const lista = await list()
     return new NextResponse(JSON.stringify((await list()).blobs))
 }
