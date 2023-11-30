@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import './globals.css'
 import { Inter } from 'next/font/google'
 import Provider from '@/components/Provider'
+// import Head from 'next/head';
 
 const APP_NAME = "Students";
 const APP_DEFAULT_TITLE = "Students APP";
@@ -37,13 +38,15 @@ export default function RootLayout({
 }) {
   // Create Provider component to wrap app with SessionProvider
   return (
+
     <html lang="en" suppressHydrationWarning>
-          <body className={inter.className}>
-                <Provider>
-                  {children}
-                </Provider>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
-            </body>
-    </html>
+    <body className={inter.className}>
+          <Provider>
+            {children}
+          </Provider>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
+      </body>
+  </html>
+
   )
 }
