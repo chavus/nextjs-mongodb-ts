@@ -6,7 +6,8 @@ export interface IStudent{
     id?:any, //workaround to be able to show id in the type
     fullName:string,
     major:string,
-    gpa:number
+    gpa:number,
+    profileImageUrl?: string;
 }
 
 export interface IStudentDocument extends IStudent, Document{
@@ -23,7 +24,8 @@ interface StudentModel extends Model<IStudentDocument>{
 const studentSchema = new Schema<IStudentDocument>({
     fullName:{type:String, required:[true, 'Full name is required']},
     major:{type:String, required:[true, 'Major is required']},
-    gpa:{type:Number, required:[true, 'gpa is required']}
+    gpa:{type:Number, required:[true, 'gpa is required']},
+    profileImageUrl:{type:String}
 }
 )
 
@@ -33,7 +35,11 @@ studentSchema.add(baseSchema) // Add baseSchema
 studentSchema.method('update', async function(partialStudent:Partial<IStudent>){
     let studentKey:keyof IStudent
     for ( studentKey in partialStudent){
-        this.set(studentKey, partialStudent[studentKey])
+        if ( studentKey === 'profileImageUrl' && !partialStudent[studentKey]){
+            this.set(studentKey, undefined) // unset field when there is not value
+        }else{
+            this.set(studentKey, partialStudent[studentKey])
+        }
     }
     await this.save()
 })

@@ -2,6 +2,19 @@
 // @ts-check
 
 const nextConfig = {
+            images:{
+              remotePatterns:[
+                {protocol:'https',
+                 hostname:'www.byrdie.com'
+                },
+                {protocol:'https',
+                 hostname:'www.corporatephotographerslondon.com'
+                },
+                {protocol:'https',
+                 hostname:'fouec0gtwszbirgk.public.blob.vercel-storage.com'
+                },
+              ]
+            },
             experimental: { 
                 serverComponentsExternalPackages: ["mongoose"],
                 instrumentationHook: true
@@ -13,5 +26,6 @@ const withPWA =  require("@ducanh2912/next-pwa").default({
   dest: "public"
 })
 
-module.exports = withPWA(nextConfig)
+// module.exports = withPWA(nextConfig)
+module.exports = nextConfig
 

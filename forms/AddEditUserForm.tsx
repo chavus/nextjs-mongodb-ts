@@ -32,7 +32,6 @@ import { getDataToUpdate } from "./formsUtils";
 // Validate fields against type, IUser vs confirmPassword
 // Optimize formatDefaultValues
 // Use dirtyFields to submit for update
-
 // confirmations updated and create
 //4. restrict to only logged in user -> Call component from parent page passing user
 // Go back button

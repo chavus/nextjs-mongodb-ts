@@ -10,7 +10,7 @@ export interface IUser {
     fullName?:string;
     age?:number;
     profession?:string;
-    isAdmin:boolean
+    isAdmin:boolean;
 }
 
 interface IUserDocument extends IUser, Document{ // Includes document/instance methods as types
@@ -37,7 +37,7 @@ const userSchema = new Schema<IUserDocument>({
     isAdmin:{type:Boolean, default:false},
     fullName:{type:String},
     profession:{type:String},
-    age:{type:Number},
+    age:{type:Number}
 })
 
 userSchema.add(baseSchema)

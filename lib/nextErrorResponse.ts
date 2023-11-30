@@ -1,12 +1,10 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
-import { NotAuthorizedError, NotFoundError } from "./customErrors";
+import { BadRequestError, NotAuthorizedError, NotFoundError, UnsupportedContentTypeError } from "./customErrors";
 
 export function getNextErrorResponse(error:Error | unknown){
 
-    let responsePayload:{message:string,errors?:{}[]} = {
-        message:'Unknown error'
-        }
+    let responsePayload:{message?:string,errors?:{}[]} = {}
     let httpStatus:number=500
 
     // Following suggested format: https://github.com/cryptlex/rest-api-response-format
@@ -17,21 +15,24 @@ export function getNextErrorResponse(error:Error | unknown){
         }
         httpStatus=400
     } else if (error instanceof NotFoundError){ //Fail
-        responsePayload = {
-            message: error.message
-        }
+        responsePayload.message = error.message
         httpStatus=404
     } else if (error instanceof NotAuthorizedError){ //Fail
-        responsePayload = {
-            message: error.message
-        }
-        httpStatus=401
-    } else if (error instanceof Error){ //Error
         responsePayload.message = error.message
+        httpStatus=401
+    } else if (error instanceof UnsupportedContentTypeError){
+        responsePayload.message = error.message
+        httpStatus=415
+    } else if (error instanceof BadRequestError){
+        responsePayload.message = error.message
+        httpStatus=400
+    } 
+    else { //Unhandled Error
+        console.log(error) // To be added to logging
     } 
 
     return new NextResponse( // New NextResponse object to add status and other properties
-    JSON.stringify(responsePayload), 
+    Object.keys(responsePayload).length == 0 ? null : JSON.stringify(responsePayload), 
     {status:httpStatus})
 }
 

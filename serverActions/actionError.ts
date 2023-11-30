@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export interface ActionError {
-    error?:{message:string
+    error:{message:string
             validationErrors?:{}[]}
 }
 
@@ -19,6 +19,7 @@ export function getActionError(error: any, genericErrorMessage?: string) {
     }
     return actionError;
 }
+
 function _getValidationErrors(error: mongoose.Error.ValidationError) {
     const validationErrors: {}[] = [];
     let validationErrorObject: { field: string; message: string; };

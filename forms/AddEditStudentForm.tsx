@@ -1,7 +1,7 @@
 'use client'
 // import mongoose from 'mongoose'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/elements/Button'
 import ButtonCustom from '@/components/elements/ButtonCustom'
@@ -11,24 +11,39 @@ import { addStudent, deleteStudent, editStudent } from '@/serverActions/studentA
 import ConfirmationModal from '@/components/ConfirmationModal'
 import revalidatePath from '@/serverActions/revalidatePath'
 import { getDataToUpdate } from './formsUtils'
+import Image from 'next/image'
+import { placeholder } from '@/assets/profileImagePlaceholder'
 
-// Standardize actionREsponse handling
+interface IStudentForm extends IStudent{
+    profileImageFile?:FileList | null 
+}
 
-//4. Details
-
+interface profileImageHandler {
+    source:'file' | 'url' | null 
+    sourceData?: File | string | null
+    toDisplay: string 
+} 
 export default function AddEditStudentForm({student}:{student?:IStudent}){
     const [isSaving, setIsSaving] = useState(false)
     const [openAddEditSuccessModal, setOpenAddEditSuccessModal] = useState(false);
     const [openDeleteConfirmationModal, setOpenDeleteConfirmationModal] = useState(false);
     const [openDeleteSuccessModal, setOpenDeleteSuccessModal] = useState(false);
     const router = useRouter();
+    const [profileImage, setProfileImage] = useState<profileImageHandler>(
+        student?.profileImageUrl 
+        ? {source:'url', sourceData: student.profileImageUrl, toDisplay: student.profileImageUrl}
+        : {source:null, toDisplay:placeholder}
+        )
+
     const {
         register,
+        watch,
         handleSubmit,
         clearErrors,
         setError,
+        resetField,
         formState:{errors, dirtyFields}
-    } = useForm<IStudent>({
+    } = useForm<IStudentForm>({
         reValidateMode:'onSubmit',
         defaultValues: student ? student : {}
     })
@@ -39,18 +54,62 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
         gpa:register('gpa', {required:"Required field.",
                              min:{value:0, message:"Enter value between 0 and 4"}, 
                              max:{value:4, message:"Enter value between 0 and 4"}, 
-                             onChange:()=>clearErrors('gpa')})
+                             onChange:()=>clearErrors('gpa')}),
+        profileImageFile:register('profileImageFile')
     }
 
-    async function onSave(data:IStudent){
+    // New student: upload
+    // Exisiting: 
+        // Delete
+        // Update
+
+    async function onSave(data:IStudentForm){
         let dataToUpdate:any
         let actionResp:any
+        let otherError
         setIsSaving(true)
+
+        delete data.profileImageFile
         if (student){
-            dataToUpdate = getDataToUpdate(data, dirtyFields)
-            actionResp = await editStudent(student.id, dataToUpdate)
+            dataToUpdate = getDataToUpdate(data, dirtyFields,['profileImageFile'])
+            // updateImage
+            if (profileImage.source === 'file'){
+                let uploadRes
+                if(student.profileImageUrl){
+                    uploadRes = await apiUpdateImage(student.profileImageUrl, profileImage.sourceData as File)
+                }else{
+                    uploadRes = await apiUploadImage(profileImage.sourceData as File)
+                }
+
+                if (uploadRes.url){
+                    dataToUpdate.profileImageUrl = uploadRes.url
+                }else{
+                    otherError = 'Unable to upload profile image file. Confirm supported types and size.'
+                }
+            } else if(profileImage.source === null && student.profileImageUrl){ // remove existing image
+                try{
+                    await apiDeleteImage(student.profileImageUrl as string)
+                    dataToUpdate.profileImageUrl = null
+                }catch(error){
+                    console.log(error) // Replace with logging
+                    otherError = 'Unable to update profile image.'
+                }
+            }
+            if (!otherError){
+                actionResp = await editStudent(student.id, dataToUpdate)
+            }
         }else{
-            actionResp =  await addStudent(data)
+            if (profileImage.source === 'file'){
+                const res = await apiUploadImage(profileImage.sourceData as File)
+                if (res.url){
+                    data.profileImageUrl = res.url
+                }else{
+                    otherError = 'Unable to upload profile image file. Confirm supported types and size.'
+                }
+            }
+            if (!otherError){
+                actionResp =  await addStudent(data)
+            }
         }
 
         // Might be standardized in a function
@@ -59,13 +118,23 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
             errors.forEach((error:{field:keyof typeof formFields, message:string}) => {
                 setError(error.field,{message:error.message})
         });
-        }else if (actionResp?.error){
-            setError('root', {message:'Error: ' + actionResp?.error?.message})
+        }else if (actionResp?.error || otherError){
+            const errorMsg = actionResp?.error?.message || otherError
+            setError('root', {message:'Error: ' + errorMsg})
         }else{
             setOpenAddEditSuccessModal(true)
         }
         setIsSaving(false)
+
         }
+
+    // Profile Image Handler
+    const profileImageInput = watch('profileImageFile')
+    useEffect(()=>{
+        if (profileImageInput?.item(0)){
+            setProfileImage({source:'file', sourceData:profileImageInput.item(0) as File, toDisplay: URL.createObjectURL(profileImageInput.item(0) as File)}) 
+        } 
+    },[profileImageInput])
 
     async function onDeleteClick(){
         const actionResp = await deleteStudent(student?.id)
@@ -78,6 +147,19 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
         }
     }
 
+    function onRemoveImageClick(){
+        const profileImageTmp: profileImageHandler = {source: null, toDisplay:placeholder}
+        if (profileImage.source === 'file'){
+            resetField('profileImageFile')
+            if (student?.profileImageUrl){
+                profileImageTmp.source = 'url'
+                profileImageTmp.sourceData =  profileImageTmp.toDisplay = student?.profileImageUrl 
+            }
+        } 
+        setProfileImage(profileImageTmp)
+
+    }
+
     function revalidateAndPushAfterSuccess(){
         revalidatePath('/sw-details')
         revalidatePath('/sw-home')
@@ -85,10 +167,33 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
     }
 
     return (
+        <>
         <form onSubmit={handleSubmit(onSave)} className="flex h-screen flex-col items-center">        
         <div className="mb-4 text-xl font-bold max-w-xs w-full text-left ">{student ? 'Edit ' : 'Add '} student:</div>
 
         {errors.root &&  <Alert closeFn={()=>clearErrors('root')}>{errors.root.message}</Alert>}
+
+        {/* Image hanlder */}
+        <div className="relative">
+        <label htmlFor="profileImageFile" className='cursor-pointer'>
+            <div className="w-32 h-32 min-w-[64px] rounded-full overflow-hidden relative mr-3">
+
+                    <Image className="object-cover" fill sizes='(min-width: 640px) 50vw' src={profileImage.toDisplay} alt={'Some name'}
+                        placeholder={placeholder} />
+            </div>
+        </label>
+            {profileImage.source !== null
+                &&
+                <button type='button' onClick={onRemoveImageClick} className="absolute bottom-0 left-8 transform translate-y-1/4 w-7 h-7 bg-white border-2 border-white dark:border-gray-800 rounded-full">
+                <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z"/>
+                </svg>
+                </button>
+            }
+        </div>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG or WEBP</p>
+        <input {...formFields.profileImageFile } name="profileImageFile" className="hidden w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="profileImageFile" type="file"/>
+        {/*  */}
 
         <div className='flex flex-col max-w-xs w-full '> 
             <div className="mb-3">
@@ -156,5 +261,35 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
             onButtonClick={revalidateAndPushAfterSuccess}
             />
     </form>
+    </>
     )
+}
+
+async function apiUploadImage(file:File) {
+    const response = await fetch(
+        `/api/avatar?filename=${file.name}`,
+        {
+            method: 'POST',
+            body: file,
+        }
+    )
+    return await response.json()
+}
+
+async function apiDeleteImage(imageUrl:string){
+    await fetch(
+        `/api/avatar?url=${imageUrl}`,
+        {
+            method: 'DELETE'
+        }
+    )
+}
+
+async function apiUpdateImage(previousUrl:string, newFile:File){
+    try{
+        await apiDeleteImage(previousUrl)
+    }catch(error){
+        return 
+    }
+    return await apiUploadImage(newFile)
 }
