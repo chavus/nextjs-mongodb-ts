@@ -14,6 +14,10 @@ import { getDataToUpdate } from './formsUtils'
 import Image from 'next/image'
 import { placeholder } from '@/assets/profileImagePlaceholder'
 
+import { uploadProfileImage, updateProfileImage, deleteProfileImage } from '@/serverActions/uploadThingsActions'
+import { uploadFiles } from '@/lib/uploadthing'
+import { ActionResponse } from '@/global'
+
 interface IStudentForm extends IStudent{
     profileImageFile?:FileList | null 
 }
@@ -58,10 +62,11 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
         profileImageFile:register('profileImageFile')
     }
 
-    // New student: upload
-    // Exisiting: 
-        // Delete
-        // Update
+
+    // DONE: Replicate maxSize error and create bug
+    // Handle upload error and validate size of image, create functions?
+    // upload, Update, delete
+    // Handle deleted image from bucket
 
     async function onSave(data:IStudentForm){
         let dataToUpdate:any
@@ -74,37 +79,41 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
             dataToUpdate = getDataToUpdate(data, dirtyFields,['profileImageFile'])
             // updateImage
             if (profileImage.source === 'file'){
+                const formDataWithProfileImage = new FormData()
+                formDataWithProfileImage.append('profileImage',profileImage.sourceData as File)
+
                 let uploadRes
                 if(student.profileImageUrl){
-                    uploadRes = await apiUpdateImage(student.profileImageUrl, profileImage.sourceData as File)
+                    uploadRes = await updateProfileImage(student.profileImageUrl, formDataWithProfileImage)
                 }else{
-                    uploadRes = await apiUploadImage(profileImage.sourceData as File)
+                    uploadRes = await uploadProfileImage(formDataWithProfileImage)
                 }
-
-                if (uploadRes.url){
-                    dataToUpdate.profileImageUrl = uploadRes.url
+                if (uploadRes.data?.url){
+                    dataToUpdate.profileImageUrl = uploadRes.data.url
                 }else{
-                    otherError = 'Unable to upload profile image file. Confirm supported types and size.'
+                    otherError = uploadRes.error?.message || 'Unable to upload profile image file. Confirm supported types and size.'
                 }
             } else if(profileImage.source === null && student.profileImageUrl){ // remove existing image
-                try{
-                    await apiDeleteImage(student.profileImageUrl as string)
-                    dataToUpdate.profileImageUrl = null
-                }catch(error){
-                    console.log(error) // Replace with logging
-                    otherError = 'Unable to update profile image.'
+                const res = await deleteProfileImage(student.profileImageUrl)
+                if (res?.error){
+                    otherError = res.error.message || 'Unable to update profile image'
                 }
+                dataToUpdate.profileImageUrl = null
             }
             if (!otherError){
                 actionResp = await editStudent(student.id, dataToUpdate)
             }
         }else{
             if (profileImage.source === 'file'){
-                const res = await apiUploadImage(profileImage.sourceData as File)
-                if (res.url){
-                    data.profileImageUrl = res.url
+                const formDataWithProfileImage = new FormData()
+                formDataWithProfileImage.append('profileImage',profileImage.sourceData as File)
+                console.log('client start: ', new Date())
+                const res = await uploadProfileImage(formDataWithProfileImage)
+                if (res.data?.url){
+                    console.log('client end: ', new Date())
+                    data.profileImageUrl = res.data.url
                 }else{
-                    otherError = 'Unable to upload profile image file. Confirm supported types and size.'
+                    otherError = res.error?.message || 'Unable to upload profile image file. Confirm supported types and size.'
                 }
             }
             if (!otherError){
@@ -132,6 +141,8 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
     const profileImageInput = watch('profileImageFile')
     useEffect(()=>{
         if (profileImageInput?.item(0)){
+            const file = profileImageInput.item(0) as File
+            console.log(file)
             setProfileImage({source:'file', sourceData:profileImageInput.item(0) as File, toDisplay: URL.createObjectURL(profileImageInput.item(0) as File)}) 
         } 
     },[profileImageInput])
@@ -192,6 +203,9 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
             }
         </div>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG or WEBP</p>
+        <p className="mt-1 text-sm font-medium text-red-600 dark:text-red-500">
+                    {errors.profileImageFile?.message}
+        </p>
         <input {...formFields.profileImageFile } name="profileImageFile" className="hidden w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="profileImageFile" type="file"/>
         {/*  */}
 

@@ -7,6 +7,9 @@ const nextConfig = {
                 {protocol:'https',
                  hostname:'fouec0gtwszbirgk.public.blob.vercel-storage.com'
                 },
+                {protocol:'https',
+                 hostname:'utfs.io'
+                },
               ]
             },
             experimental: { 

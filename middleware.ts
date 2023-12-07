@@ -22,7 +22,9 @@ const noAuthRoutes:Array<[method:string,path:string]>= [
     ['GET','/sw-home'],
     ['GET', '/access-denied'],
     ['GET','/sw-signup'],
-    ['POST','/api/users']
+    ['POST','/api/users'],
+    ['GET','/api/uploadthing'], // endpoints should not be blocked by middleware.ts https://docs.uploadthing.com/faq#when-i-upload-files-i-get-the-error-failed-to-simulate-callback-for-file-is-your-webhook-configured-correctly
+    ['POST','/api/uploadthing']
  ]
 
  function noAuthRequired(request: NextRequest){

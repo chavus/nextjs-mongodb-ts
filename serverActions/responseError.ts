@@ -1,28 +1,35 @@
 import mongoose from "mongoose";
+import { ActionError } from "@/global";
 
-// Come up with better actionResponse and error handling
 
-export interface ActionError {
-    error:{message:string
-            validationErrors?:{}[]}
-}
 
-export function getActionError(error: any, errorMessage?: string) {
-    const actionError: ActionError = { error: { message: 'Unknown error' } };
+/**
+ * 
+ * @param errorMessage {string} Message to be added to ActionError
+ * @param error {any} Any error object to be handled by function
+ * @returns 
+ * 
+ * @example
+ * await getResponseError('File not supported.')
+ * await getResponseError(undefined, validationErrorObject)
+ */
+export function getResponseError(errorMessage?: string, error?: any ) {
+    const responseError:{error:ActionError} = { error: { message: 'Action failed.' } };
     // Validation Errors
-    if (error instanceof mongoose.Error.ValidationError) {
-        actionError.error = {
+    if (error && error instanceof mongoose.Error.ValidationError) {
+        console.log(error) // Add to logging
+        responseError.error = {
             message: 'Action failed with validation errors',
-            validationErrors: _getValidationErrors(error)
+            errors: _getValidationErrors(error)
         };
-    } else if (error instanceof Error){
-        actionError.error.message = error.message
+    } else {
+        if (errorMessage){
+            responseError.error.message = errorMessage
+            console.log(errorMessage) // Add to logging
+        }        
+        error && console.log(error) // Add to logging
     }
-    else {
-        actionError.error!.message = errorMessage || 'Action failed. Try again later.';
-        console.log(error); // Replace for logging
-    }
-    return actionError;
+    return responseError;
 }
 
 function _getValidationErrors(error: mongoose.Error.ValidationError) {

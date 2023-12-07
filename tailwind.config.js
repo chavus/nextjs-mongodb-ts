@@ -1,8 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 
+import { withUt } from "uploadthing/tw";
+ 
+
+
 const colors = require('tailwindcss/colors')
 
-module.exports = {
+module.exports = withUt({
   darkMode:'class', 
   content: [
     "./node_modules/flowbite/**/*.js",
@@ -33,4 +37,4 @@ module.exports = {
   plugins: [
     require("flowbite/plugin")
   ],
-}
+})
