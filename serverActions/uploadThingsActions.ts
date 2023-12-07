@@ -3,7 +3,11 @@ import { UTApi } from "uploadthing/server";
 import { getResponseError } from "./responseError";
 import { ActionResponse } from "@/global";
 
-const utapi = new UTApi()
+console.log('UPLOADTHING_SECRET: ', process.env.UPLOADTHING_SECRET)
+
+const utapi = new UTApi({
+    apiKey:process.env.UPLOADTHING_SECRET
+})
 
 const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_FILE_SIZE = 2000000 // In bytes
