@@ -14,7 +14,10 @@ const nextConfig = {
             },
             experimental: { 
                 serverComponentsExternalPackages: ["mongoose"],
-                instrumentationHook: true
+                instrumentationHook: true,
+                serverActions:{
+                  bodySizeLimit: '10mb'
+                }
             },
     };
 

@@ -64,9 +64,11 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
 
 
     // DONE: Replicate maxSize error and create bug
-    // Handle upload error and validate size of image, create functions?
-    // upload, Update, delete
-    // Handle deleted image from bucket
+    // DONE: upload, Update, delete
+    // Client validation of image size and type
+    // Performance and loaders. When uploading image, in between pages, after adding students, etc
+    // Refactor studentsAction with new actionResponse
+    // Clean up
 
     async function onSave(data:IStudentForm){
         let dataToUpdate:any

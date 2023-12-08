@@ -3,7 +3,7 @@ import { UTApi } from "uploadthing/server";
 import { getResponseError } from "./responseError";
 import { ActionResponse } from "@/global";
 
-console.log('UPLOADTHING_SECRET: ', process.env.UPLOADTHING_SECRET)
+// console.log('UPLOADTHING_SECRET: ', process.env.UPLOADTHING_SECRET)
 
 const utapi = new UTApi({
     apiKey:process.env.UPLOADTHING_SECRET
