@@ -8,7 +8,7 @@ interface ExtendedButtonProps extends ComponentProps<'button'>{
   outline?:boolean
   className?:string
   size?:string
-  tag?:'button' | 'a',
+  tag?:'button' | 'a',  // Refactor to 'as' to be same as FlowbiteReact Button
   href?:string
 }
 
@@ -25,6 +25,7 @@ const SIZE_VARIANTS:{[key:string]:string} = {
   xs: 'px-3 py-2 text-xs',
   md: 'px-5 py-2.5 text-sm'
 }
+
 
 export default function ButtonCustom({children, type='button', className='', color='primary', pill, outline, size='md', tag='button', href='#', ...otherProps}:ExtendedButtonProps) {
   

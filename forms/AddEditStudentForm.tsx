@@ -1,5 +1,5 @@
 'use client'
-// import mongoose from 'mongoose'
+
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,12 +11,13 @@ import { addStudent, deleteStudent, editStudent } from '@/serverActions/studentA
 import ConfirmationModal from '@/components/ConfirmationModal'
 import revalidatePath from '@/serverActions/revalidatePath'
 import { getDataToUpdate } from './formsUtils'
-import Image from 'next/image'
 import { placeholder } from '@/assets/profileImagePlaceholder'
-
-import { uploadProfileImage, updateProfileImage, deleteProfileImage } from '@/serverActions/uploadThingsActions'
-import { uploadFiles } from '@/lib/uploadthing'
+import { profileImageConfig } from '@/app.config'
+import { uploadProfileImage, updateProfileImage, deleteProfileImage} from '@/serverActions/studentsProfileImageActions'
+import ProfileImage from '@/components/elements/ProfileImage'
 import { ActionResponse } from '@/global'
+import Link from 'next/link'
+
 
 interface IStudentForm extends IStudent{
     profileImageFile?:FileList | null 
@@ -27,6 +28,20 @@ interface profileImageHandler {
     sourceData?: File | string | null
     toDisplay: string 
 } 
+
+function fileValidation(fileList:FileList | null | undefined){
+    if (fileList && fileList.length > 0){
+        const file = fileList[0]
+        // return profileImageConfig.supportedTypes.includes(file.type) &&  file.size < profileImageConfig.maxSizeLimit
+        if (!profileImageConfig.supportedTypes.includes(file.type)){
+            return 'Profile image file type not supported.'
+        } else if(file.size > profileImageConfig.maxSizeLimit){
+            return 'Profile image file exceeded size limit.'
+        }      
+    }
+    return true
+}
+
 export default function AddEditStudentForm({student}:{student?:IStudent}){
     const [isSaving, setIsSaving] = useState(false)
     const [openAddEditSuccessModal, setOpenAddEditSuccessModal] = useState(false);
@@ -59,20 +74,15 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
                              min:{value:0, message:"Enter value between 0 and 4"}, 
                              max:{value:4, message:"Enter value between 0 and 4"}, 
                              onChange:()=>clearErrors('gpa')}),
-        profileImageFile:register('profileImageFile')
+        profileImageFile:register('profileImageFile', {onChange:()=>clearErrors('profileImageFile')})
     }
 
-
-    // DONE: Replicate maxSize error and create bug
-    // DONE: upload, Update, delete
-    // Client validation of image size and type
     // Performance and loaders. When uploading image, in between pages, after adding students, etc
-    // Refactor studentsAction with new actionResponse
     // Clean up
 
     async function onSave(data:IStudentForm){
         let dataToUpdate:any
-        let actionResp:any
+        let actionResp:ActionResponse={}
         let otherError
         setIsSaving(true)
 
@@ -103,28 +113,26 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
                 dataToUpdate.profileImageUrl = null
             }
             if (!otherError){
-                actionResp = await editStudent(student.id, dataToUpdate)
+                actionResp = await editStudent(student.id, dataToUpdate) as ActionResponse
             }
         }else{
             if (profileImage.source === 'file'){
                 const formDataWithProfileImage = new FormData()
                 formDataWithProfileImage.append('profileImage',profileImage.sourceData as File)
-                console.log('client start: ', new Date())
                 const res = await uploadProfileImage(formDataWithProfileImage)
                 if (res.data?.url){
-                    console.log('client end: ', new Date())
                     data.profileImageUrl = res.data.url
                 }else{
                     otherError = res.error?.message || 'Unable to upload profile image file. Confirm supported types and size.'
                 }
             }
             if (!otherError){
-                actionResp =  await addStudent(data)
+                actionResp =  await addStudent(data) as ActionResponse
             }
         }
 
         // Might be standardized in a function
-        if (actionResp?.error && actionResp.error.validationErrors){
+        if (actionResp?.error && actionResp.error.errors){
             const errors = actionResp.error.errors as any
             errors.forEach((error:{field:keyof typeof formFields, message:string}) => {
                 setError(error.field,{message:error.message})
@@ -143,9 +151,15 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
     const profileImageInput = watch('profileImageFile')
     useEffect(()=>{
         if (profileImageInput?.item(0)){
-            const file = profileImageInput.item(0) as File
-            console.log(file)
-            setProfileImage({source:'file', sourceData:profileImageInput.item(0) as File, toDisplay: URL.createObjectURL(profileImageInput.item(0) as File)}) 
+            const fileValRes = fileValidation(profileImageInput)
+            if (typeof fileValRes === 'string'){
+                setError('root', {message: fileValRes})
+                resetField('profileImageFile')
+            }else{
+                const file = profileImageInput.item(0) as File
+                setProfileImage({source:'file', sourceData:profileImageInput.item(0) as File, toDisplay: URL.createObjectURL(profileImageInput.item(0) as File)}) 
+                clearErrors('root')
+            }
         } 
     },[profileImageInput])
 
@@ -161,6 +175,7 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
     }
 
     function onRemoveImageClick(){
+        clearErrors('root')
         const profileImageTmp: profileImageHandler = {source: null, toDisplay:placeholder}
         if (profileImage.source === 'file'){
             resetField('profileImageFile')
@@ -191,8 +206,12 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
         <label htmlFor="profileImageFile" className='cursor-pointer'>
             <div className="w-32 h-32 min-w-[64px] rounded-full overflow-hidden relative mr-3">
 
-                    <Image className="object-cover" fill sizes='(min-width: 640px) 50vw' src={profileImage.toDisplay} alt={'Some name'}
-                        placeholder={placeholder} />
+                <ProfileImage src={profileImage.toDisplay} alt={student?.fullName || 'Profile Image'}/> 
+                
+                {/* Approach with Image component, which do image optimization and cache images: */}
+                {/* <Image className="object-cover" fill sizes='(min-width: 640px) 50vw' src={profileImage.toDisplay} alt={'Some name'}
+                        placeholder={placeholder} unoptimized/>  */}
+            
             </div>
         </label>
             {profileImage.source !== null
@@ -204,12 +223,12 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
                 </button>
             }
         </div>
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG or WEBP</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG or WEBP (Max. 2MB)</p>
+        
         <p className="mt-1 text-sm font-medium text-red-600 dark:text-red-500">
                     {errors.profileImageFile?.message}
         </p>
         <input {...formFields.profileImageFile } name="profileImageFile" className="hidden w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="profileImageFile" type="file"/>
-        {/*  */}
 
         <div className='flex flex-col max-w-xs w-full '> 
             <div className="mb-3">
@@ -245,7 +264,10 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
 
         <div className='flex flex-col w-full max-w-xs '>
             <Button type="submit" className="mb-3" isProcessing={isSaving} disabled={isSaving}>{student ? 'Save' : 'Add'}</Button> 
-            {student && <ButtonCustom onClick={()=>setOpenDeleteConfirmationModal(true)} color="danger" outline >Delete</ButtonCustom>}
+            <Link href="/sw-home">
+                <ButtonCustom type="button" className="mb-3 w-full" outline >Cancel</ButtonCustom> 
+            </Link>    
+            {student && <ButtonCustom className='mt-3' onClick={()=>setOpenDeleteConfirmationModal(true)} color="danger" outline >Delete</ButtonCustom>}
         </div>
 
         {/* Add/Edit student success modal */}
@@ -279,33 +301,4 @@ export default function AddEditStudentForm({student}:{student?:IStudent}){
     </form>
     </>
     )
-}
-
-async function apiUploadImage(file:File) {
-    const response = await fetch(
-        `/api/avatar?filename=${file.name}`,
-        {
-            method: 'POST',
-            body: file,
-        }
-    )
-    return await response.json()
-}
-
-async function apiDeleteImage(imageUrl:string){
-    await fetch(
-        `/api/avatar?url=${imageUrl}`,
-        {
-            method: 'DELETE'
-        }
-    )
-}
-
-async function apiUpdateImage(previousUrl:string, newFile:File){
-    try{
-        await apiDeleteImage(previousUrl)
-    }catch(error){
-        return 
-    }
-    return await apiUploadImage(newFile)
 }

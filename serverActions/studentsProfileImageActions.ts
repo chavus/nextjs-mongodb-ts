@@ -1,16 +1,13 @@
 'use server'
-import { UTApi } from "uploadthing/server";
-import { getResponseError } from "./responseError";
-import { ActionResponse } from "@/global";
 
-// console.log('UPLOADTHING_SECRET: ', process.env.UPLOADTHING_SECRET)
+import { UTApi } from "uploadthing/server";
+import {profileImageConfig} from '@/app.config'
+import { getResponseError } from "./actionResponseError";
+import { type ActionResponse } from "@/global";
 
 const utapi = new UTApi({
-    apiKey:process.env.UPLOADTHING_SECRET
+    apiKey:process.env.UPLOADTHING_SECRET // Must be set to work in Vercel deployment
 })
-
-const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_FILE_SIZE = 2000000 // In bytes
 
 /**
  * 
@@ -21,16 +18,13 @@ export async function uploadProfileImage(formDataWithProfileImage:FormData):Prom
     
     try{
         const file = formDataWithProfileImage.get('profileImage') as File
-        console.log('file in server: ', new Date(), ' ->', file)
-
-        if (!SUPPORTED_TYPES.includes(file.type)){
+        if (!profileImageConfig.supportedTypes.includes(file.type)){
             return getResponseError('File type not supported.')
-        } else if(file.size > MAX_FILE_SIZE){
+        } else if(file.size > profileImageConfig.maxSizeLimit){
             return getResponseError('File size exceeded max limit.')
         }        
         const res = await utapi.uploadFiles(file)
         if (res.data?.url){
-            console.log('file uploaded in server: ', new Date())
             return {data:{url:res.data.url}} 
         }else {
             console.log(res.error) // Add to logging
@@ -46,10 +40,11 @@ export async function deleteProfileImage(imageUrl:string):Promise<void | ActionR
         const fileKey = imageUrl.split('/').slice(-1)[0]
         const res = await utapi.deleteFiles(fileKey)
         if (!res.success){
-            return getResponseError('Failed to delete profile image')
+            // Failing to delete image from bucket should not block action on client. 
+            console.log(getResponseError('Failed to delete profile image'))
         }
     }catch(error){
-        return getResponseError('Failed to delete profile image', error)
+        console.log(getResponseError('Failed to delete profile image', error))
     } 
 }
 

@@ -2,6 +2,7 @@
 // @ts-check
 
 const nextConfig = {
+            
             images:{
               remotePatterns:[
                 {protocol:'https',
@@ -9,15 +10,12 @@ const nextConfig = {
                 },
                 {protocol:'https',
                  hostname:'utfs.io'
-                },
+                }
               ]
             },
             experimental: { 
                 serverComponentsExternalPackages: ["mongoose"],
                 instrumentationHook: true,
-                serverActions:{
-                  bodySizeLimit: '10mb'
-                }
             },
     };
 

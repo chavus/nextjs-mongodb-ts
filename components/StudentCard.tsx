@@ -1,8 +1,8 @@
 import Button from "@/components/elements/Button"
 import Link from "next/link"
 import { type IStudent } from "@/models/student"
-import Image from 'next/image'
 import { placeholder } from "@/assets/profileImagePlaceholder"
+import  ProfileImage  from "./elements/ProfileImage"
 
 // https://www.byrdie.com/thmb/_nU1tZv2sot2tC_V1y5PhNk46jA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/Face-Mapping-191d3a2073e146d981c1626b39e8a227.png
 
@@ -12,12 +12,11 @@ export default function StudentCard({student, showEdit, showDetails}:{student:IS
     <div className="grow max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
         <div className="mb-2 flex items-center">
             <div className="w-16 h-16 min-w-[64px] rounded-full overflow-hidden relative mr-3">
-                {/* <Image className="object-cover" fill src={profilePic} alt={student.fullName}/> */}
-                {/* <Image className="object-cover" fill src='https://www.byrdie.com/thmb/_nU1tZv2sot2tC_V1y5PhNk46jA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/Face-Mapping-191d3a2073e146d981c1626b39e8a227.png' alt={student.fullName}/> */}
-                {/* <Image className="object-cover" fill src='https://www.corporatephotographerslondon.com/wp-content/uploads/2021/07/LinkedIn_profile_photo_sample_1-300x300.jpg' alt={student.fullName}
+                <ProfileImage src={student.profileImageUrl || placeholder} alt={student?.fullName} />
+                
+                {/* Approach with Image component, which do image optimization and cache images: */}
+                {/* <Image className="object-cover" fill sizes='(min-width: 640px) 50vw' src={student.profileImageUrl || placeholder} alt={student.fullName}
                     placeholder={placeholder} /> */}
-                <Image className="object-cover" fill sizes='(min-width: 640px) 50vw' src={student.profileImageUrl || placeholder} alt={student.fullName}
-                    placeholder={placeholder} />
             </div>
             <div>
                 <h5 className="text-xl font-bold tracking-tight dark:text-white">{student.fullName}</h5>

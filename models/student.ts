@@ -24,7 +24,7 @@ interface StudentModel extends Model<IStudentDocument>{
 const studentSchema = new Schema<IStudentDocument>({
     fullName:{type:String, required:[true, 'Full name is required']},
     major:{type:String, required:[true, 'Major is required']},
-    gpa:{type:Number, required:[true, 'gpa is required']},
+    gpa:{type:Number, required:[true, 'GPA is required']},
     profileImageUrl:{type:String}
 }
 )

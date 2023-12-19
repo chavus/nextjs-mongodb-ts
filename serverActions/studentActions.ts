@@ -1,16 +1,14 @@
 'use server'
 import Student, {IStudent} from "@/models/student"
-import { getActionError, type ActionError } from "./actionError"
+import { deleteProfileImage } from "./studentsProfileImageActions"
+import { type ActionResponse } from "@/global"
+import { getResponseError } from "./actionResponseError"
 
-// Approach for handling server actions responses:
-// return void, data or ActionError
-// Error Logging would probably be done here.
-
-export async function addStudent(student:IStudent):Promise<ActionError | void>{
+export async function addStudent(student:IStudent):Promise<ActionResponse | void>{
     try{
         await Student.add(student)
     }catch(error){
-        return getActionError(error, 'Failed to add student. Try again later.')
+        return getResponseError('Failed to add student. Try again later.', error)
     }
 }
 
@@ -18,20 +16,34 @@ export async function editStudent(id:string, dataToUpdate:Partial<IStudent>){
     try{
         const student = await Student.getById(id)
         if (!student){
-            return {error:{message:'Student not found.'}} as ActionError
+            return getResponseError('Student not found')
         }
         await student.update(dataToUpdate)
     }catch(error){
-        return getActionError(error, 'Failed to edit student. Try again later.')
+        return getResponseError('Failed to edit student. Try again later.', error)
     }
 }
 
-export async function deleteStudent(studentId:string):Promise<ActionError | void>{
+export async function deleteStudent(studentId:string):Promise<ActionResponse | void>{
     try{
+        // Delete image from bucket
         const deletedStudent = await Student.findByIdAndDelete(studentId)
-        if (!deletedStudent) throw new Error('Student not found.')
+        
+        if (deletedStudent) {
+            const profileImageUrl = deletedStudent.profileImageUrl
+            if (profileImageUrl){
+                const deleteRes = await deleteProfileImage(profileImageUrl)
+                if (deleteRes?.error){
+                    console.log('Student was deleted but failed to delete profile image from bucket.')
+                    console.log('Image URL: ', deletedStudent.profileImageUrl)
+                }
+            }
+        }
+        else {
+            return getResponseError('Student not found.')
+        }
     }catch(error){        
-        return getActionError(error, 'Failed to delete student. Try again later.')
+        return getResponseError('Failed to delete student. Try again later.', error)
 
     }
 }
