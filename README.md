@@ -1,4 +1,35 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Students WebApp and PWA
+This is a students registration application developed for learning purposes.It covers all conventional functionalities. It has been developed with Next.js using a combination of server and client side rendering and also implementing server actions. It has been deployed in Vercel.
+
+## Demo site:
+https://www.ademo.live <br/>
+(Register and log in to have full access)
+
+## Functionality
+- Navigation without authentication.
+- Restricted views.
+- Registration and login.
+- Add, edit and delete user profiles and students.
+- Add students images
+- Error handling in forms.
+- Responsive for web and mobile
+- It has Progressive Web App capabilities, so it can be installed on desktop and mobile.
+
+## Stack and libraries
+- TS / Next.js 14 / React
+- next-auth for authentication handling
+- react-hook-form (useForm)
+- MongoDB and mongoose 
+- uploadthing for images storage
+- Tailwind and flowbite for UI
+
+
+## Preview
+![Login page](/readmeAssets/login.png)
+![Registration page](/readmeAssets/registration.png)
+![Dashboard page](/readmeAssets/studentsView.png)
+![Students page](/readmeAssets/studentsEdit.png)
+
 
 ## Getting Started
 
